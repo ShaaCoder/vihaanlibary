@@ -1,46 +1,107 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { toast } from "sonner";
-import { courses as initialCourses } from "@/lib/data/courses";
-import { Course } from "@/types/course";
+import { createClient } from "@/lib/supabase/client";
+import { Course } from "@/lib/types";
 
 import CourseForm from "./course-form";
 import CoursesList from "./courses-list";
 
 export default function CoursesSection() {
-  const [courses, setCourses] = useState<Course[]>(initialCourses);
+  const supabase = useRef(createClient()).current;
+  const [courses, setCourses] = useState<Course[]>([]);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const loadCourses = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("courses")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setCourses((data || []) as Course[]);
+    } catch (error) {
+      toast.error("Failed to load courses");
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [supabase]);
+
+  useEffect(() => {
+    loadCourses();
+  }, [loadCourses]);
 
   const filteredCourses = courses.filter((course) =>
     course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     course.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleAddCourse = (course: Omit<Course, "id" | "createdAt">) => {
-    const newCourse: Course = {
-      ...course,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString().split("T")[0],
-    };
-    setCourses([...courses, newCourse]);
-    toast.success("Course added successfully!");
+  const handleAddCourse = async (courseData: Omit<Course, "id" | "created_at">) => {
+    setIsSubmitting(true);
+    try {
+      const { error } = await (supabase.from("courses") as any).insert([
+        {
+          title: courseData.title,
+          description: courseData.description,
+          image_url: courseData.image_url,
+        },
+      ]);
+
+      if (error) throw error;
+      toast.success("Course added successfully!");
+      loadCourses();
+    } catch (error) {
+      toast.error("Failed to add course");
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleUpdateCourse = (id: string, courseData: Partial<Course>) => {
-    setCourses(
-      courses.map((course) =>
-        course.id === id ? { ...course, ...courseData } : course
-      )
-    );
-    setEditingCourse(null);
-    toast.success("Course updated successfully!");
+  const handleUpdateCourse = async (id: string, courseData: Partial<Course>) => {
+    setIsSubmitting(true);
+    try {
+      const { error } = await (supabase.from("courses") as any)
+        .update({
+          title: courseData.title,
+          description: courseData.description,
+          image_url: courseData.image_url,
+        })
+        .eq("id", id);
+
+      if (error) throw error;
+      toast.success("Course updated successfully!");
+      setEditingCourse(null);
+      loadCourses();
+    } catch (error) {
+      toast.error("Failed to update course");
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleDeleteCourse = (id: string) => {
-    setCourses(courses.filter((course) => course.id !== id));
-    toast.success("Course deleted successfully!");
+  const handleDeleteCourse = async (id: string) => {
+    setIsSubmitting(true);
+    try {
+      const { error } = await (supabase.from("courses") as any).delete().eq("id", id);
+
+      if (error) throw error;
+      toast.success("Course deleted successfully!");
+      loadCourses();
+    } catch (error) {
+      toast.error("Failed to delete course");
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -63,6 +124,7 @@ export default function CoursesSection() {
         courses={filteredCourses}
         onEdit={setEditingCourse}
         onDelete={handleDeleteCourse}
+        isLoading={isLoading}
       />
     </div>
   );
