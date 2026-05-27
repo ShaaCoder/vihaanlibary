@@ -5,6 +5,7 @@ type Props = {
   courses: Course[];
   onEdit: (course: Course) => void;
   onDelete: (id: string) => void;
+  isLoading?: boolean;
 };
 
 export default function CoursesList({ courses, onEdit, onDelete }: Props) {

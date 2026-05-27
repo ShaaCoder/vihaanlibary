@@ -6,7 +6,7 @@ import DashboardHeader from "./dashboard-header";
 import DashboardTabs from "./dashboard-tabs";
 
 import CoursesSection from "./courses/courses-section";
-import BlogsSection from "./blogs/blogs-section";
+import { BlogCMS } from "./blog/blog-cms";
 import NoticesSection from "./notices/notices-section";
 import StudentsSection from "./students/students-section";
 import AdmissionsSection from "./admissions/admissions-section";
@@ -27,7 +27,7 @@ export default function AdminDashboard() {
         />
 
         {activeTab === "courses" && <CoursesSection />}
-        {activeTab === "blogs" && <BlogsSection />}
+        {activeTab === "blogs" && <BlogCMS />}
         {activeTab === "notices" && <NoticesSection />}
         {activeTab === "students" && <StudentsSection />}
         {activeTab === "admissions" && <AdmissionsSection />}

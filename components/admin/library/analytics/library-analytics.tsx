@@ -23,7 +23,7 @@ export default function LibraryAnalytics({
           <h2 className="text-2xl font-bold mb-6">
             Daily Attendance
           </h2>
-          <AttendanceChart attendanceRecords={attendanceRecords} />
+          <AttendanceChart />
         </div>
 
         {/* REVENUE */}
@@ -31,7 +31,7 @@ export default function LibraryAnalytics({
           <h2 className="text-2xl font-bold mb-6">
             Monthly Revenue
           </h2>
-          <RevenueChart paymentRecords={paymentRecords} />
+          <RevenueChart />
         </div>
       </div>
 
@@ -40,7 +40,7 @@ export default function LibraryAnalytics({
         <h2 className="text-2xl font-bold mb-6">
           Membership Overview
         </h2>
-        <MembershipChart analytics={analytics} />
+        <MembershipChart />
       </div>
 
       {/* STATUS */}

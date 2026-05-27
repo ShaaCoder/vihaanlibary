@@ -35,10 +35,49 @@ export interface Blog {
   title: string;
   slug: string;
   content: string;
+  excerpt: string;
+  featured_image: string;
+  image_alt: string;
   author: string;
-  image_url: string | null;
+  meta_title: string;
+  meta_description: string;
+  focus_keyword: string;
+  canonical_url: string;
+  og_image: string;
+  reading_time: number;
+  views: number;
+  featured: boolean;
+  published: boolean;
   created_at: string;
   updated_at: string;
+  categories?: BlogCategory[];
+  tags?: BlogTag[];
+  faqs?: BlogFAQ[];
+}
+
+export interface BlogCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  parent_id: string | null;
+  created_at: string;
+}
+
+export interface BlogTag {
+  id: string;
+  name: string;
+  slug: string;
+  created_at: string;
+}
+
+export interface BlogFAQ {
+  id: string;
+  blog_id: string;
+  question: string;
+  answer: string;
+  sort_order: number;
+  created_at: string;
 }
 
 export interface Notice {

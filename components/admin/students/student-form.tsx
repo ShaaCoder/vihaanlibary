@@ -206,8 +206,8 @@ export default function StudentForm({
           <input
             type="text"
             placeholder="e.g., 10th, 12th"
-            value={className}
-            onChange={(e) => setClassName(e.target.value)}
+            value={classSection}
+            onChange={(e) => setClassSection(e.target.value)}
             className="
               w-full
               h-14

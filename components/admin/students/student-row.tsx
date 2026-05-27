@@ -43,7 +43,7 @@ export default function StudentRow({
 
       {/* CLASS */}
       <td className="px-6 py-5 whitespace-nowrap">
-        {student.className}
+        {student.classSection}
       </td>
 
       {/* COURSE */}

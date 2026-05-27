@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Course } from "@/types/course";
+import { Course } from "@/lib/types";
 import CourseImageUpload from "./course-image-upload";
 
 type Props = {
-  onAddCourse: (course: Omit<Course, "id" | "createdAt">) => void;
+  onAddCourse: (course: Omit<Course, "id" | "created_at">) => void;
   editingCourse: Course | null;
   onUpdateCourse: (id: string, course: Partial<Course>) => void;
 };
@@ -23,7 +23,7 @@ export default function CourseForm({
     if (editingCourse) {
       setTitle(editingCourse.title);
       setDescription(editingCourse.description);
-      setImage(editingCourse.image);
+      setImage(editingCourse.image_url || "");
     } else {
       setTitle("");
       setDescription("");
@@ -34,9 +34,9 @@ export default function CourseForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingCourse) {
-      onUpdateCourse(editingCourse.id, { title, description, image });
+      onUpdateCourse(editingCourse.id, { title, description, image_url: image });
     } else {
-      onAddCourse({ title, description, image });
+      onAddCourse({ title, description, image_url: image });
     }
   };
 

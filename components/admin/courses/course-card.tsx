@@ -21,7 +21,7 @@ export default function CourseCard({ course, onEdit, onDelete }: Props) {
       {/* IMAGE */}
       <div className="h-56 overflow-hidden">
         <img
-          src={course.image}
+          src={course.image_url || ''}
           alt={course.title}
           className="
             w-full

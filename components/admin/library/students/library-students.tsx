@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Edit, Trash2 } from "lucide-react";
+import { Search, CreditCard as Edit, Trash2 } from "lucide-react";
 import { LibraryStudent } from "@/types/library";
 
 type Props = {
@@ -22,15 +22,15 @@ export default function LibraryStudents({
   const [membershipFilter, setMembershipFilter] = useState("All Memberships");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [editingStudent, setEditingStudent] = useState<LibraryStudent | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Record<string, string>>({
     fullName: "",
     phone: "",
     email: "",
-    membershipPlan: "Premium" as const,
+    membershipPlan: "Premium",
     joiningDate: new Date().toISOString().split("T")[0],
     expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-    status: "active" as const,
-    paymentStatus: "paid" as const,
+    status: "active",
+    paymentStatus: "paid",
   });
 
   const filteredStudents = libraryStudents.filter((student) => {
@@ -53,10 +53,10 @@ export default function LibraryStudents({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingStudent) {
-      onUpdateStudent(editingStudent.id, formData);
+      onUpdateStudent(editingStudent.id, formData as any);
       setEditingStudent(null);
     } else {
-      onAddStudent(formData);
+      onAddStudent(formData as any);
     }
     setFormData({
       fullName: "",
@@ -72,7 +72,7 @@ export default function LibraryStudents({
 
   const handleEdit = (student: LibraryStudent) => {
     setEditingStudent(student);
-    setFormData(student);
+    setFormData(student as unknown as Record<string, string>);
   };
 
   return (

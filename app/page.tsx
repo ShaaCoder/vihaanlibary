@@ -224,8 +224,8 @@ export default async function Home() {
                 <Link key={blog.id} href={`/blogs/${blog.slug}`} className="group block">
                   <Card className="flex flex-col overflow-hidden border-blue-100 transition-all hover:shadow-xl hover:border-teal-200 h-full">
                     <div className="relative h-48 sm:h-56 w-full overflow-hidden">
-                      {blog.image_url ? (
-                        <Image src={blog.image_url} alt={blog.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                      {blog.featured_image ? (
+                        <Image src={blog.featured_image} alt={blog.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                       ) : (
                         <div className="flex h-full items-center justify-center bg-gradient-to-br from-teal-100 via-cyan-50 to-blue-100">
                           <BookOpen className="h-12 sm:h-16 w-12 sm:w-16 text-teal-300" />
@@ -244,7 +244,7 @@ export default async function Home() {
                       <CardDescription className="text-xs sm:text-sm">By {blog.author}</CardDescription>
                     </CardHeader>
                     <CardContent className="flex-1 p-3 sm:p-4 pt-0">
-                      <p className="line-clamp-3 text-xs sm:text-sm text-gray-600">{blog.content}</p>
+                      <p className="line-clamp-3 text-xs sm:text-sm text-gray-600">{blog.excerpt || blog.content?.replace(/<[^>]*>/g, '').slice(0, 120)}</p>
                     </CardContent>
                     <div className="border-t border-blue-100 p-3 sm:p-4">
                       <span className="text-xs sm:text-sm font-semibold text-teal-600 hover:text-teal-700 flex items-center gap-1 group-hover:gap-2 transition-all">

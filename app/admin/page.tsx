@@ -16,11 +16,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { createClient } from '@/lib/supabase/client';
-import { Course, Lead, Blog, Notice, Student, Admission } from '@/lib/types';
+import { Course, Lead, Notice, Student, Admission } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/lib/auth-context';
 import { ImageUpload } from '@/components/image-upload';
 import { LibraryDashboard } from '@/components/library-dashboard';
+import { BlogCMS } from '@/components/admin/blog/blog-cms';
 import Image from 'next/image';
 import {
   Loader as Loader2,
@@ -52,7 +53,6 @@ export default function AdminPage() {
 
   const [courses, setCourses] = useState<Course[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [blogs, setBlogs] = useState<Blog[]>([]);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [admissions, setAdmissions] = useState<Admission[]>([]);
@@ -67,7 +67,6 @@ export default function AdminPage() {
   const { toast } = useToast();
 
   const [courseForm, setCourseForm] = useState({ title: '', description: '', image_url: null as string | null });
-  const [blogForm, setBlogForm] = useState({ title: '', slug: '', content: '', author: '', image_url: null as string | null });
   const [noticeForm, setNoticeForm] = useState({ title: '', content: '', priority: 'medium', is_active: true });
   const [studentForm, setStudentForm] = useState({
     name: '', email: '', enrollment_number: '', course: '',
@@ -78,10 +77,9 @@ export default function AdminPage() {
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [coursesRes, leadsRes, blogsRes, noticesRes, studentsRes, admissionsRes] = await Promise.all([
+      const [coursesRes, leadsRes, noticesRes, studentsRes, admissionsRes] = await Promise.all([
         supabase.from('courses').select('*').order('created_at', { ascending: false }),
         supabase.from('leads').select('*').order('created_at', { ascending: false }),
-        supabase.from('blogs').select('*').order('created_at', { ascending: false }),
         supabase.from('notices').select('*').order('created_at', { ascending: false }),
         supabase.from('students').select('*').order('created_at', { ascending: false }),
         supabase.from('admissions').select('*').order('created_at', { ascending: false }),
@@ -89,7 +87,6 @@ export default function AdminPage() {
 
       setCourses(coursesRes.data || []);
       setLeads(leadsRes.data || []);
-      setBlogs(blogsRes.data || []);
       setNotices(noticesRes.data || []);
       setStudents(studentsRes.data || []);
       setAdmissions(admissionsRes.data || []);
@@ -133,40 +130,6 @@ export default function AdminPage() {
       loadData();
     } catch (error) {
       toast({ title: 'Error', description: 'Failed to save course', variant: 'destructive' });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
-  };
-
-  const handleSubmitBlog = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      const slug = blogForm.slug || generateSlug(blogForm.title);
-      if (editingId) {
-        const { error } = await (supabase.from('blogs') as any).update({ title: blogForm.title, slug, content: blogForm.content, author: blogForm.author, image_url: blogForm.image_url }).eq('id', editingId);
-        if (error) throw error;
-        toast({ title: 'Success', description: 'Blog updated' });
-      } else {
-        const { error } = await (supabase.from('blogs') as any).insert([{ title: blogForm.title, slug, content: blogForm.content, author: blogForm.author, image_url: blogForm.image_url }]);
-        if (error) throw error;
-        toast({ title: 'Success', description: 'Blog added' });
-      }
-      setBlogForm({ title: '', slug: '', content: '', author: '', image_url: null });
-      setEditingId(null);
-      setEditingType(null);
-      loadData();
-    } catch (error) {
-      toast({ title: 'Error', description: 'Failed to save blog', variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
@@ -250,8 +213,6 @@ export default function AdminPage() {
     setEditingType(type);
     if (type === 'course') {
       setCourseForm({ title: item.title, description: item.description || '', image_url: item.image_url || null });
-    } else if (type === 'blog') {
-      setBlogForm({ title: item.title, slug: item.slug || '', content: item.content || '', author: item.author || '', image_url: item.image_url || null });
     } else if (type === 'notice') {
       setNoticeForm({ title: item.title, content: item.content || '', priority: item.priority || 'medium', is_active: item.is_active !== false });
     } else if (type === 'student') {
@@ -282,7 +243,6 @@ export default function AdminPage() {
     setEditingId(null);
     setEditingType(null);
     setCourseForm({ title: '', description: '', image_url: null });
-    setBlogForm({ title: '', slug: '', content: '', author: '', image_url: null });
     setNoticeForm({ title: '', content: '', priority: 'medium', is_active: true });
     setStudentForm({ name: '', email: '', enrollment_number: '', course: '', phone: '', class: '', reference_number: '', subjects: '' });
   };
@@ -346,7 +306,7 @@ export default function AdminPage() {
               <BookOpen className="h-4 w-4" /> Courses <span className="ml-1 rounded-full bg-white/20 px-1.5 text-xs">{courses.length}</span>
             </TabsTrigger>
             <TabsTrigger value="blogs" className="gap-1.5 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-              <FileText className="h-4 w-4" /> Blogs <span className="ml-1 rounded-full bg-white/20 px-1.5 text-xs">{blogs.length}</span>
+              <FileText className="h-4 w-4" /> Blogs
             </TabsTrigger>
             <TabsTrigger value="notices" className="gap-1.5 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
               <Bell className="h-4 w-4" /> Notices <span className="ml-1 rounded-full bg-white/20 px-1.5 text-xs">{notices.length}</span>
@@ -423,74 +383,7 @@ export default function AdminPage() {
 
           {/* ==================== BLOGS ==================== */}
           <TabsContent value="blogs" className="space-y-6">
-            <Card className="border-blue-100 shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-blue-900">{editingType === 'blog' ? 'Edit Blog' : 'Add New Blog'}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmitBlog} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="blog-title">Blog Title *</Label>
-                    <Input id="blog-title" value={blogForm.title} onChange={(e) => {
-                      const title = e.target.value;
-                      setBlogForm({ ...blogForm, title, slug: blogForm.slug || generateSlug(title) });
-                    }} required placeholder="Blog title" className={inputClass} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="blog-slug">URL Slug</Label>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-400 shrink-0">/blogs/</span>
-                      <Input id="blog-slug" value={blogForm.slug} onChange={(e) => setBlogForm({ ...blogForm, slug: e.target.value })} placeholder="auto-generated-from-title" className={inputClass} />
-                    </div>
-                    <p className="text-xs text-gray-400">Leave blank to auto-generate from title</p>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="blog-author">Author *</Label>
-                    <Input id="blog-author" value={blogForm.author} onChange={(e) => setBlogForm({ ...blogForm, author: e.target.value })} required placeholder="Author name" className={inputClass} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="blog-content">Content *</Label>
-                    <Textarea id="blog-content" value={blogForm.content} onChange={(e) => setBlogForm({ ...blogForm, content: e.target.value })} required placeholder="Blog content" rows={5} className={inputClass} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Blog Image</Label>
-                    <ImageUpload value={blogForm.image_url} onChange={(url) => setBlogForm({ ...blogForm, image_url: url })} folder="blogs" />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button type="submit" disabled={isSubmitting} className="bg-blue-600 text-white hover:bg-blue-700">
-                      {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</> : editingType === 'blog' ? 'Update Blog' : 'Add Blog'}
-                    </Button>
-                    {editingType === 'blog' && <Button type="button" variant="outline" onClick={cancelEdit} className="border-blue-200 text-blue-700 hover:bg-blue-50">Cancel</Button>}
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {blogs.map((blog) => (
-                <Card key={blog.id} className="border-blue-100 transition-all hover:shadow-md hover:shadow-blue-100/50 overflow-hidden">
-                  {blog.image_url ? (
-                    <div className="relative h-40 w-full">
-                      <Image src={blog.image_url} alt={blog.title} fill className="object-cover" />
-                    </div>
-                  ) : (
-                    <div className="flex h-24 items-center justify-center bg-gradient-to-br from-teal-50 to-cyan-50">
-                      <FileText className="h-10 w-10 text-teal-200" />
-                    </div>
-                  )}
-                  <CardHeader>
-                    <CardTitle className="line-clamp-2">{blog.title}</CardTitle>
-                    <CardDescription>By {blog.author}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="mb-4 line-clamp-2 text-sm text-gray-600">{blog.content}</p>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" onClick={() => handleEdit(blog, 'blog')} className="border-yellow-200 text-yellow-700 hover:bg-yellow-50"><Edit2 className="h-4 w-4" /></Button>
-                      <Button size="sm" variant="destructive" onClick={() => confirmDelete(blog.id, 'blogs')}><Trash2 className="h-4 w-4" /></Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+            <BlogCMS />
           </TabsContent>
 
           {/* ==================== NOTICES ==================== */}
