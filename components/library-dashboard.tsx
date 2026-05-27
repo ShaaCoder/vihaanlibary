@@ -44,7 +44,6 @@ export function LibraryDashboard() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterPaymentStatus, setFilterPaymentStatus] = useState<string>('all');
   const [filterMembership, setFilterMembership] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
 
@@ -52,29 +51,28 @@ export function LibraryDashboard() {
     name: string;
     phone: string;
     email: string;
-    membership_type: 'basic' | 'premium' | 'annual';
-    monthly_fee: number;
-    membership_expiry: string;
+    membership_type: 'monthly' | 'quarterly' | 'yearly';
+    membership_start: string;
+    membership_end: string;
   }>({
     name: '',
     phone: '',
     email: '',
-    membership_type: 'basic',
-    monthly_fee: 500,
-    membership_expiry: '',
+    membership_type: 'monthly',
+    membership_start: new Date().toISOString().split('T')[0],
+    membership_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
   });
 
   const [attendanceForm, setAttendanceForm] = useState({
     student_id: '',
-    check_in_time: '',
+    check_in: new Date().toISOString(),
     date: new Date().toISOString().split('T')[0],
   });
 
   const [paymentForm, setPaymentForm] = useState({
     student_id: '',
     amount: 0,
-    month: '',
-    payment_method: 'cash',
+    payment_type: 'membership' as const,
   });
 
   const loadData = useCallback(async () => {
@@ -111,9 +109,8 @@ export function LibraryDashboard() {
             phone: studentForm.phone,
             email: studentForm.email,
             membership_type: studentForm.membership_type,
-            monthly_fee: studentForm.monthly_fee,
-            membership_expiry: studentForm.membership_expiry ? new Date(studentForm.membership_expiry).toISOString() : null,
-            updated_at: new Date().toISOString(),
+            membership_start: studentForm.membership_start,
+            membership_end: studentForm.membership_end,
           })
           .eq('id', editingId);
 
@@ -126,9 +123,8 @@ export function LibraryDashboard() {
             phone: studentForm.phone,
             email: studentForm.email,
             membership_type: studentForm.membership_type,
-            monthly_fee: studentForm.monthly_fee,
-            membership_expiry: studentForm.membership_expiry ? new Date(studentForm.membership_expiry).toISOString() : null,
-            payment_status: 'pending',
+            membership_start: studentForm.membership_start,
+            membership_end: studentForm.membership_end,
             status: 'active',
           },
         ]);
@@ -149,18 +145,17 @@ export function LibraryDashboard() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const checkInTime = new Date(`${attendanceForm.date}T${attendanceForm.check_in_time}`).toISOString();
       const { error } = await (supabase.from('library_attendance') as any).insert([
         {
           student_id: attendanceForm.student_id,
-          check_in_time: checkInTime,
+          check_in: attendanceForm.check_in,
           date: attendanceForm.date,
         },
       ]);
 
       if (error) throw error;
       toast({ title: 'Success', description: 'Check-in recorded' });
-      setAttendanceForm({ student_id: '', check_in_time: '', date: new Date().toISOString().split('T')[0] });
+      setAttendanceForm({ student_id: '', check_in: new Date().toISOString(), date: new Date().toISOString().split('T')[0] });
       loadData();
     } catch (error) {
       toast({ title: 'Error', description: 'Failed to record attendance', variant: 'destructive' });
@@ -173,28 +168,20 @@ export function LibraryDashboard() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const currentMonth = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
       const { error } = await (supabase.from('library_payments') as any).insert([
         {
           student_id: paymentForm.student_id,
           amount: paymentForm.amount,
-          month: paymentForm.month || currentMonth,
-          payment_method: paymentForm.payment_method,
+          payment_type: paymentForm.payment_type,
+          payment_date: new Date().toISOString().split('T')[0],
           status: 'completed',
         },
       ]);
 
       if (error) throw error;
 
-      const student = libraryStudents.find(s => s.id === paymentForm.student_id);
-      if (student) {
-        await (supabase.from('library_students') as any)
-          .update({ payment_status: 'paid', updated_at: new Date().toISOString() })
-          .eq('id', paymentForm.student_id);
-      }
-
       toast({ title: 'Success', description: 'Payment recorded' });
-      setPaymentForm({ student_id: '', amount: 0, month: '', payment_method: 'cash' });
+      setPaymentForm({ student_id: '', amount: 0, payment_type: 'membership' });
       loadData();
     } catch (error) {
       toast({ title: 'Error', description: 'Failed to record payment', variant: 'destructive' });
@@ -209,9 +196,9 @@ export function LibraryDashboard() {
       name: student.name,
       phone: student.phone,
       email: student.email || '',
-      membership_type: student.membership_type as 'basic' | 'premium' | 'annual',
-      monthly_fee: student.monthly_fee,
-      membership_expiry: student.membership_expiry ? student.membership_expiry.split('T')[0] : '',
+      membership_type: student.membership_type as 'monthly' | 'quarterly' | 'yearly',
+      membership_start: student.membership_start ? new Date(student.membership_start).toISOString().split('T')[0] : '',
+      membership_end: student.membership_end ? new Date(student.membership_end).toISOString().split('T')[0] : '',
     });
   };
 
@@ -230,24 +217,30 @@ export function LibraryDashboard() {
   };
 
   const resetStudentForm = () => {
-    setStudentForm({ name: '', phone: '', email: '', membership_type: 'basic', monthly_fee: 500, membership_expiry: '' });
+    setStudentForm({
+      name: '',
+      phone: '',
+      email: '',
+      membership_type: 'monthly',
+      membership_start: new Date().toISOString().split('T')[0],
+      membership_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    });
     setEditingId(null);
   };
 
   const filteredStudents = libraryStudents.filter(student => {
     const matchesSearch = student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          student.phone.includes(searchQuery);
-    const matchesPayment = filterPaymentStatus === 'all' || student.payment_status === filterPaymentStatus;
     const matchesMembership = filterMembership === 'all' || student.membership_type === filterMembership;
     const matchesStatus = filterStatus === 'all' || student.status === filterStatus;
-    return matchesSearch && matchesPayment && matchesMembership && matchesStatus;
+    return matchesSearch && matchesMembership && matchesStatus;
   });
 
   const stats = {
     totalStudents: libraryStudents.length,
     activeStudents: libraryStudents.filter(s => s.status === 'active').length,
-    pendingPayments: libraryStudents.filter(s => s.payment_status === 'pending' || s.payment_status === 'overdue').length,
-    expiredMemberships: libraryStudents.filter(s => s.membership_expiry && new Date(s.membership_expiry) < new Date()).length,
+    pendingPayments: libraryStudents.filter(s => s.status === 'expired').length,
+    expiredMemberships: libraryStudents.filter(s => s.membership_end && new Date(s.membership_end) < new Date()).length,
     monthlyRevenue: payments
       .filter(p => {
         const paymentDate = new Date(p.created_at);
@@ -273,9 +266,9 @@ export function LibraryDashboard() {
   ).map(([month, amount]) => ({ month, revenue: amount })).slice(-6);
 
   const membershipDistribution = [
-    { name: 'Basic', value: libraryStudents.filter(s => s.membership_type === 'basic').length },
-    { name: 'Premium', value: libraryStudents.filter(s => s.membership_type === 'premium').length },
-    { name: 'Annual', value: libraryStudents.filter(s => s.membership_type === 'annual').length },
+    { name: 'Monthly', value: libraryStudents.filter(s => s.membership_type === 'monthly').length },
+    { name: 'Quarterly', value: libraryStudents.filter(s => s.membership_type === 'quarterly').length },
+    { name: 'Yearly', value: libraryStudents.filter(s => s.membership_type === 'yearly').length },
   ];
 
   const inputClass = 'border-blue-200 focus:border-blue-500 focus:ring-blue-500';
@@ -418,26 +411,25 @@ export function LibraryDashboard() {
                 <div className="space-y-2">
                   <Label>Membership Type *</Label>
                   <Select value={studentForm.membership_type} onValueChange={(value) => {
-                    const fee = MEMBERSHIP_FEES[value as keyof typeof MEMBERSHIP_FEES];
-                    setStudentForm({ ...studentForm, membership_type: value as any, monthly_fee: fee });
+                    setStudentForm({ ...studentForm, membership_type: value as any });
                   }}>
                     <SelectTrigger className={inputClass}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="basic">Basic - ₹500</SelectItem>
-                      <SelectItem value="premium">Premium - ₹1000</SelectItem>
-                      <SelectItem value="annual">Annual - ₹10000</SelectItem>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                      <SelectItem value="quarterly">Quarterly</SelectItem>
+                      <SelectItem value="yearly">Yearly</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Monthly Fee</Label>
-                  <Input type="number" value={studentForm.monthly_fee} readOnly className="bg-gray-50" />
+                  <Label>Membership Start</Label>
+                  <Input type="date" value={studentForm.membership_start} onChange={(e) => setStudentForm({ ...studentForm, membership_start: e.target.value })} className={inputClass} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Membership Expiry</Label>
-                  <Input type="date" value={studentForm.membership_expiry} onChange={(e) => setStudentForm({ ...studentForm, membership_expiry: e.target.value })} className={inputClass} />
+                  <Label>Membership End</Label>
+                  <Input type="date" value={studentForm.membership_end} onChange={(e) => setStudentForm({ ...studentForm, membership_end: e.target.value })} className={inputClass} />
                 </div>
               </div>
               <div className="flex gap-2">
@@ -460,23 +452,14 @@ export function LibraryDashboard() {
                   <Input placeholder="Search by name or phone..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
                 </div>
               </div>
-              <div className="grid gap-2 sm:grid-cols-3">
-                <Select value={filterPaymentStatus} onValueChange={setFilterPaymentStatus}>
-                  <SelectTrigger><SelectValue placeholder="Payment Status" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Payments</SelectItem>
-                    <SelectItem value="paid">Paid</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="overdue">Overdue</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="grid gap-2 sm:grid-cols-2">
                 <Select value={filterMembership} onValueChange={setFilterMembership}>
                   <SelectTrigger><SelectValue placeholder="Membership" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Memberships</SelectItem>
-                    <SelectItem value="basic">Basic</SelectItem>
-                    <SelectItem value="premium">Premium</SelectItem>
-                    <SelectItem value="annual">Annual</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="quarterly">Quarterly</SelectItem>
+                    <SelectItem value="yearly">Yearly</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
@@ -498,9 +481,8 @@ export function LibraryDashboard() {
                     <TableHead>Name</TableHead>
                     <TableHead>Phone</TableHead>
                     <TableHead>Membership</TableHead>
-                    <TableHead>Fee</TableHead>
-                    <TableHead>Expiry</TableHead>
-                    <TableHead>Payment</TableHead>
+                    <TableHead>Start Date</TableHead>
+                    <TableHead>End Date</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -511,18 +493,9 @@ export function LibraryDashboard() {
                       <TableCell className="font-medium">{student.name}</TableCell>
                       <TableCell>{student.phone}</TableCell>
                       <TableCell><span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">{student.membership_type}</span></TableCell>
-                      <TableCell>₹{student.monthly_fee}</TableCell>
-                      <TableCell>{student.membership_expiry ? new Date(student.membership_expiry).toLocaleDateString() : '-'}</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${
-                          student.payment_status === 'paid' ? 'bg-green-100 text-green-700' :
-                          student.payment_status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-red-100 text-red-700'
-                        }`}>
-                          {student.payment_status}
-                        </span>
-                      </TableCell>
-                      <TableCell><span className={`px-2 py-1 rounded text-xs font-medium ${student.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>{student.status}</span></TableCell>
+                      <TableCell>{student.membership_start ? new Date(student.membership_start).toLocaleDateString() : '-'}</TableCell>
+                      <TableCell>{student.membership_end ? new Date(student.membership_end).toLocaleDateString() : '-'}</TableCell>
+                      <TableCell><span className={`px-2 py-1 rounded text-xs font-medium ${student.status === 'active' ? 'bg-green-100 text-green-700' : student.status === 'expired' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{student.status}</span></TableCell>
                       <TableCell>
                         <div className="flex gap-1">
                           <Button size="sm" variant="outline" onClick={() => handleEdit(student)}><Edit2 className="h-3 w-3" /></Button>
@@ -566,7 +539,7 @@ export function LibraryDashboard() {
                 </div>
                 <div className="space-y-2">
                   <Label>Check-In Time *</Label>
-                  <Input type="time" value={attendanceForm.check_in_time} onChange={(e) => setAttendanceForm({ ...attendanceForm, check_in_time: e.target.value })} className={inputClass} />
+                  <Input type="datetime-local" value={attendanceForm.check_in.slice(0, 16)} onChange={(e) => setAttendanceForm({ ...attendanceForm, check_in: new Date(e.target.value).toISOString() })} className={inputClass} />
                 </div>
               </div>
               <Button type="submit" disabled={isSubmitting} className="gap-2 bg-blue-600 hover:bg-blue-700">
@@ -598,8 +571,8 @@ export function LibraryDashboard() {
                       <TableRow key={att.id} className="border-blue-50 hover:bg-blue-50">
                         <TableCell>{att.date}</TableCell>
                         <TableCell>{student?.name || '-'}</TableCell>
-                        <TableCell>{att.check_in_time ? new Date(att.check_in_time).toLocaleTimeString() : '-'}</TableCell>
-                        <TableCell>{att.check_out_time ? new Date(att.check_out_time).toLocaleTimeString() : '-'}</TableCell>
+                        <TableCell>{att.check_in ? new Date(att.check_in).toLocaleTimeString() : '-'}</TableCell>
+                        <TableCell>{att.check_out ? new Date(att.check_out).toLocaleTimeString() : '-'}</TableCell>
                       </TableRow>
                     );
                   })}
@@ -637,20 +610,15 @@ export function LibraryDashboard() {
                   <Input type="number" value={paymentForm.amount} onChange={(e) => setPaymentForm({ ...paymentForm, amount: parseFloat(e.target.value) })} required placeholder="0" className={inputClass} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Month</Label>
-                  <Input type="month" value={paymentForm.month} onChange={(e) => setPaymentForm({ ...paymentForm, month: e.target.value })} className={inputClass} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Payment Method</Label>
-                  <Select value={paymentForm.payment_method} onValueChange={(value) => setPaymentForm({ ...paymentForm, payment_method: value })}>
+                  <Label>Payment Type</Label>
+                  <Select value={paymentForm.payment_type} onValueChange={(value) => setPaymentForm({ ...paymentForm, payment_type: value as any })}>
                     <SelectTrigger className={inputClass}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="cash">Cash</SelectItem>
-                      <SelectItem value="card">Card</SelectItem>
-                      <SelectItem value="upi">UPI</SelectItem>
-                      <SelectItem value="bank">Bank Transfer</SelectItem>
+                      <SelectItem value="membership">Membership</SelectItem>
+                      <SelectItem value="fine">Fine</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -674,8 +642,7 @@ export function LibraryDashboard() {
                     <TableHead>Date</TableHead>
                     <TableHead>Student</TableHead>
                     <TableHead>Amount</TableHead>
-                    <TableHead>Month</TableHead>
-                    <TableHead>Method</TableHead>
+                    <TableHead>Type</TableHead>
                     <TableHead>Status</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -684,12 +651,11 @@ export function LibraryDashboard() {
                     const student = libraryStudents.find(s => s.id === payment.student_id);
                     return (
                       <TableRow key={payment.id} className="border-blue-50 hover:bg-blue-50">
-                        <TableCell>{new Date(payment.created_at).toLocaleDateString()}</TableCell>
+                        <TableCell>{new Date(payment.payment_date).toLocaleDateString()}</TableCell>
                         <TableCell>{student?.name || '-'}</TableCell>
                         <TableCell className="font-medium">₹{payment.amount}</TableCell>
-                        <TableCell>{payment.month || '-'}</TableCell>
-                        <TableCell>{payment.payment_method || '-'}</TableCell>
-                        <TableCell><span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">{payment.status}</span></TableCell>
+                        <TableCell>{payment.payment_type}</TableCell>
+                        <TableCell><span className={`px-2 py-1 rounded text-xs font-medium ${payment.status === 'completed' ? 'bg-green-100 text-green-700' : payment.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>{payment.status}</span></TableCell>
                       </TableRow>
                     );
                   })}
@@ -744,18 +710,14 @@ export function LibraryDashboard() {
             <CardTitle className="text-sm">Payment Status Overview</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2">
               <div className="p-4 bg-green-50 rounded-lg border border-green-100">
-                <p className="text-sm text-green-600 font-medium">Paid</p>
-                <p className="text-2xl font-bold text-green-700">{libraryStudents.filter(s => s.payment_status === 'paid').length}</p>
-              </div>
-              <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-100">
-                <p className="text-sm text-yellow-600 font-medium">Pending</p>
-                <p className="text-2xl font-bold text-yellow-700">{libraryStudents.filter(s => s.payment_status === 'pending').length}</p>
+                <p className="text-sm text-green-600 font-medium">Active</p>
+                <p className="text-2xl font-bold text-green-700">{libraryStudents.filter(s => s.status === 'active').length}</p>
               </div>
               <div className="p-4 bg-red-50 rounded-lg border border-red-100">
-                <p className="text-sm text-red-600 font-medium">Overdue</p>
-                <p className="text-2xl font-bold text-red-700">{libraryStudents.filter(s => s.payment_status === 'overdue').length}</p>
+                <p className="text-sm text-red-600 font-medium">Expired</p>
+                <p className="text-2xl font-bold text-red-700">{libraryStudents.filter(s => s.status === 'expired').length}</p>
               </div>
             </div>
           </CardContent>

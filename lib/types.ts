@@ -152,33 +152,30 @@ export interface LibraryStudent {
   name: string;
   phone: string;
   email: string | null;
-  membership_type: 'basic' | 'premium' | 'annual';
-  monthly_fee: number;
-  join_date: string;
-  membership_expiry: string | null;
-  payment_status: 'paid' | 'pending' | 'overdue';
-  status: 'active' | 'inactive';
+  membership_type: 'monthly' | 'quarterly' | 'yearly';
+  membership_start: string | null;
+  membership_end: string | null;
+  status: 'active' | 'expired' | 'suspended';
   created_at: string;
-  updated_at: string;
 }
 
 export interface LibraryAttendance {
   id: string;
-  student_id: string;
-  check_in_time: string | null;
-  check_out_time: string | null;
+  student_id: string | null;
+  check_in: string | null;
+  check_out: string | null;
   date: string;
   created_at: string;
 }
 
 export interface LibraryPayment {
   id: string;
-  student_id: string;
+  student_id: string | null;
   amount: number;
+  payment_type: 'membership' | 'fine' | 'other';
   payment_date: string;
-  month: string | null;
-  payment_method: string | null;
-  status: 'completed' | 'pending';
+  status: 'completed' | 'pending' | 'failed';
+  notes: string | null;
   created_at: string;
 }
 
@@ -186,7 +183,7 @@ export interface LibraryStudentFormData {
   name: string;
   phone: string;
   email: string;
-  membership_type: 'basic' | 'premium' | 'annual';
-  monthly_fee: number;
-  membership_expiry: string;
+  membership_type: 'monthly' | 'quarterly' | 'yearly';
+  membership_start: string;
+  membership_end: string;
 }

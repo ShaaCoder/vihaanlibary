@@ -67,6 +67,8 @@ export default function StudentsSection() {
   const handleAddStudent = async (student: Omit<Student, "id" | "createdAt">) => {
     try {
       const supabase = createClient() as any;
+      const subjectsArray = Array.isArray(student.subjects) ? student.subjects : [];
+
       const { data, error } = await supabase
         .from("students")
         .insert([
@@ -78,7 +80,7 @@ export default function StudentsSection() {
             course: student.course,
             class: student.classSection,
             reference_number: student.referenceNumber,
-            subjects: student.subjects,
+            subjects: subjectsArray,
           },
         ])
         .select();
