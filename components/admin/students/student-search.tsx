@@ -23,7 +23,7 @@ export default function StudentSearch({ searchQuery, setSearchQuery }: Props) {
 
       <input
         type="text"
-        placeholder="Search students..."
+        placeholder="Search by name or enrollment number..."
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         className="
