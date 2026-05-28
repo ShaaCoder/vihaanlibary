@@ -64,6 +64,9 @@ export default function AdminPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteType, setDeleteType] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('courses');
+  const [studentSearchQuery, setStudentSearchQuery] = useState('');
+  const [studentFilterCourse, setStudentFilterCourse] = useState('all');
+  const [studentFilterClass, setStudentFilterClass] = useState('all');
   const { toast } = useToast();
 
   const [courseForm, setCourseForm] = useState({ title: '', description: '', image_url: null as string | null });
@@ -266,6 +269,21 @@ export default function AdminPage() {
     setDeleteType(type);
     setShowDeleteDialog(true);
   };
+
+  const filteredStudents = students.filter(student => {
+    const searchLower = studentSearchQuery.toLowerCase();
+    const matchesSearch = !studentSearchQuery ||
+      student.name.toLowerCase().includes(searchLower) ||
+      student.enrollment_number.toLowerCase().includes(searchLower);
+
+    const matchesCourse = studentFilterCourse === 'all' || student.course === studentFilterCourse;
+    const matchesClass = studentFilterClass === 'all' || student.class === studentFilterClass;
+
+    return matchesSearch && matchesCourse && matchesClass;
+  });
+
+  const uniqueCourses = Array.from(new Set(students.map(s => s.course).filter((c): c is string => !!c)));
+  const uniqueClasses = Array.from(new Set(students.map(s => s.class).filter((c): c is string => !!c)));
 
   if (authLoading || isLoading) {
     return (
@@ -516,6 +534,72 @@ export default function AdminPage() {
             </Card>
 
             <Card className="border-blue-100 shadow-sm overflow-hidden">
+              <CardHeader className="pb-4">
+                <div className="space-y-4">
+                  <div className="flex gap-3">
+                    <div className="flex-1">
+                      <Label htmlFor="student-search" className="text-xs text-gray-500">Search by Name or Enrollment</Label>
+                      <Input
+                        id="student-search"
+                        type="text"
+                        placeholder="Search students..."
+                        value={studentSearchQuery}
+                        onChange={(e) => setStudentSearchQuery(e.target.value)}
+                        className={`${inputClass} mt-1`}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <Label htmlFor="student-filter-course" className="text-xs text-gray-500">Filter by Course</Label>
+                      <Select value={studentFilterCourse} onValueChange={setStudentFilterCourse}>
+                        <SelectTrigger id="student-filter-course" className={`${inputClass} mt-1`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Courses</SelectItem>
+                          {uniqueCourses.map(course => (
+                            <SelectItem key={course} value={course}>{course}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="student-filter-class" className="text-xs text-gray-500">Filter by Class</Label>
+                      <Select value={studentFilterClass} onValueChange={setStudentFilterClass}>
+                        <SelectTrigger id="student-filter-class" className={`${inputClass} mt-1`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Classes</SelectItem>
+                          {uniqueClasses.map(cls => (
+                            <SelectItem key={cls} value={cls}>{cls}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  {(studentSearchQuery || studentFilterCourse !== 'all' || studentFilterClass !== 'all') && (
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          setStudentSearchQuery('');
+                          setStudentFilterCourse('all');
+                          setStudentFilterClass('all');
+                        }}
+                        className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                      >
+                        Clear Filters
+                      </Button>
+                      <span className="text-sm text-gray-500 flex items-center">
+                        {filteredStudents.length} of {students.length} student{students.length !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </CardHeader>
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse text-sm">
                   <thead>
@@ -531,7 +615,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {students.map((student) => (
+                    {filteredStudents.map((student) => (
                       <tr key={student.id} className="border-b border-blue-50 hover:bg-yellow-50/30">
                         <td className="px-4 py-3 font-medium">{student.name}</td>
                         <td className="px-4 py-3"><span className="rounded bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">{student.enrollment_number}</span></td>
@@ -550,6 +634,7 @@ export default function AdminPage() {
                     ))}
                   </tbody>
                 </table>
+                {filteredStudents.length === 0 && students.length > 0 && <div className="py-12 text-center text-gray-400">No students match your search or filters.</div>}
                 {students.length === 0 && <div className="py-12 text-center text-gray-400">No students yet. Add your first student above.</div>}
               </div>
             </Card>
