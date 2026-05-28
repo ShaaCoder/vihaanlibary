@@ -67,9 +67,11 @@ export default function StudentsSection() {
   const handleAddStudent = async (student: Omit<Student, "id" | "createdAt">) => {
     try {
       const supabase = createClient() as any;
-      const subjectsArray = Array.isArray(student.subjects) ? student.subjects : [];
+      const subjectsArray = Array.isArray(student.subjects)
+        ? student.subjects.filter(s => s && s.trim())
+        : [];
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("students")
         .insert([
           {
@@ -80,10 +82,9 @@ export default function StudentsSection() {
             course: student.course,
             class: student.classSection,
             reference_number: student.referenceNumber,
-            subjects: subjectsArray,
+            subjects: subjectsArray.length > 0 ? subjectsArray : null,
           },
-        ])
-        .select();
+        ]);
 
       if (error) throw error;
       toast.success("Student added successfully!");
@@ -97,6 +98,12 @@ export default function StudentsSection() {
   const handleUpdateStudent = async (id: string, studentData: Partial<Student>) => {
     try {
       const supabase = createClient() as any;
+      const subjectsArray = studentData.subjects
+        ? Array.isArray(studentData.subjects)
+          ? studentData.subjects.filter(s => s && s.trim())
+          : []
+        : null;
+
       const { error } = await supabase
         .from("students")
         .update({
@@ -107,7 +114,7 @@ export default function StudentsSection() {
           course: studentData.course,
           class: studentData.classSection,
           reference_number: studentData.referenceNumber,
-          subjects: studentData.subjects,
+          subjects: subjectsArray && subjectsArray.length > 0 ? subjectsArray : null,
         })
         .eq("id", id);
 
