@@ -163,6 +163,10 @@ export default function AdminPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
+      const subjectsArray = studentForm.subjects
+        ? studentForm.subjects.split(',').map(s => s.trim()).filter(s => s)
+        : null;
+
       const payload = {
         name: studentForm.name,
         email: studentForm.email,
@@ -171,7 +175,7 @@ export default function AdminPage() {
         phone: studentForm.phone || null,
         class: studentForm.class || null,
         reference_number: studentForm.reference_number || null,
-        subjects: studentForm.subjects || null,
+        subjects: subjectsArray && subjectsArray.length > 0 ? subjectsArray : null,
       };
       if (editingId) {
         const { error } = await (supabase.from('students') as any).update(payload).eq('id', editingId);
@@ -216,10 +220,11 @@ export default function AdminPage() {
     } else if (type === 'notice') {
       setNoticeForm({ title: item.title, content: item.content || '', priority: item.priority || 'medium', is_active: item.is_active !== false });
     } else if (type === 'student') {
+      const subjectsString = Array.isArray(item.subjects) ? item.subjects.join(', ') : item.subjects || '';
       setStudentForm({
         name: item.name, email: item.email, enrollment_number: item.enrollment_number,
         course: item.course || '', phone: item.phone || '', class: item.class || '',
-        reference_number: item.reference_number || '', subjects: item.subjects || '',
+        reference_number: item.reference_number || '', subjects: subjectsString,
       });
     }
   };
@@ -533,7 +538,7 @@ export default function AdminPage() {
                         <td className="px-4 py-3 text-gray-600">{student.email}</td>
                         <td className="hidden px-4 py-3 md:table-cell">{student.class || '-'}</td>
                         <td className="hidden px-4 py-3 lg:table-cell">{student.course || '-'}</td>
-                        <td className="hidden max-w-[200px] truncate px-4 py-3 lg:table-cell">{student.subjects || '-'}</td>
+                        <td className="hidden max-w-[200px] truncate px-4 py-3 lg:table-cell">{Array.isArray(student.subjects) ? student.subjects.join(', ') : student.subjects || '-'}</td>
                         <td className="hidden px-4 py-3 md:table-cell">{student.reference_number || '-'}</td>
                         <td className="px-4 py-3">
                           <div className="flex gap-1">
