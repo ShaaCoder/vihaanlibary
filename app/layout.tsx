@@ -10,10 +10,7 @@ import { Toaster as SonnerToaster } from 'sonner';
 import { AuthProvider } from '@/lib/auth-context';
 
 import { Header } from '@/components/header';
-<<<<<<< HEAD
 import Footer from '@/components/Footer';
-=======
->>>>>>> 62c3ca9c7a7ee7b247e8b1d157b14b6d6f3f7e49
 
 const inter = Inter({
   subsets: ['latin'],
@@ -21,10 +18,6 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: 'Vihaan Education Academy',
-<<<<<<< HEAD
-
-=======
->>>>>>> 62c3ca9c7a7ee7b247e8b1d157b14b6d6f3f7e49
   description:
     'Quality education courses for your success',
 
@@ -44,15 +37,11 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
 
-<<<<<<< HEAD
-    images: ['/vihaanlogo.png'],
-=======
     images: [
       {
         url: '/vihaanlogo.png',
       },
     ],
->>>>>>> 62c3ca9c7a7ee7b247e8b1d157b14b6d6f3f7e49
   },
 };
 
@@ -135,12 +124,9 @@ export default function RootLayout({
             }),
           }}
         />
-<<<<<<< HEAD
 
         {/* GLOBAL FOOTER */}
         <Footer />
-=======
->>>>>>> 62c3ca9c7a7ee7b247e8b1d157b14b6d6f3f7e49
       </body>
     </html>
   );

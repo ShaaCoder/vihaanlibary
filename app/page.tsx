@@ -312,8 +312,6 @@ export default async function Home() {
             </Card>
           </div>
         </section>
-
-<<<<<<< HEAD
      {/* FAQ Section */}
 <section className="py-12 sm:py-16 lg:py-20">
   <div className="mb-8 sm:mb-12 text-center">
@@ -351,7 +349,7 @@ export default async function Home() {
     </Accordion>
   </div>
 </section>
-=======
+
         {/* FAQ Section */}
         <section className="py-12 sm:py-16 lg:py-20">
           <div className="mb-8 sm:mb-12 text-center">
@@ -375,7 +373,7 @@ export default async function Home() {
             </Accordion>
           </div>
         </section>
->>>>>>> 62c3ca9c7a7ee7b247e8b1d157b14b6d6f3f7e49
+
 
         {/* CTA Section */}
         <section className="py-12 sm:py-16 lg:py-20">
@@ -400,9 +398,6 @@ export default async function Home() {
         </section>
       </main>
 
-<<<<<<< HEAD
-    
-=======
       {/* Footer */}
       <footer className="border-t border-blue-100 bg-gradient-to-b from-white to-blue-50 py-8 sm:py-12 mt-12 sm:mt-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -495,7 +490,7 @@ export default async function Home() {
           </div>
         </div>
       </footer>
->>>>>>> 62c3ca9c7a7ee7b247e8b1d157b14b6d6f3f7e49
+
     </div>
   );
 }

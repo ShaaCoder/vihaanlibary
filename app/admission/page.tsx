@@ -190,15 +190,11 @@ function AdmissionFormContent() {
         </Card>
       </main>
 
-<<<<<<< HEAD
-  
-=======
       <footer className="border-t border-blue-100 bg-white py-8">
         <div className="mx-auto max-w-7xl px-4 text-center text-gray-500">
           <p>&copy; 2024 Vihaan Education Academy. All rights reserved.</p>
         </div>
       </footer>
->>>>>>> 62c3ca9c7a7ee7b247e8b1d157b14b6d6f3f7e49
     </div>
   );
 }
