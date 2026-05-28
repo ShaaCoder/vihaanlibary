@@ -313,6 +313,7 @@ export default async function Home() {
           </div>
         </section>
 
+<<<<<<< HEAD
      {/* FAQ Section */}
 <section className="py-12 sm:py-16 lg:py-20">
   <div className="mb-8 sm:mb-12 text-center">
@@ -350,6 +351,31 @@ export default async function Home() {
     </Accordion>
   </div>
 </section>
+=======
+        {/* FAQ Section */}
+        <section className="py-12 sm:py-16 lg:py-20">
+          <div className="mb-8 sm:mb-12 text-center">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
+              Frequently Asked <span className="text-blue-600">Questions</span>
+            </h2>
+            <p className="mt-2 sm:mt-4 text-sm sm:text-base text-gray-600">Find answers to common questions about our academy</p>
+          </div>
+          <div className="mx-auto max-w-3xl">
+            <Accordion type="single" collapsible className="space-y-2 sm:space-y-3">
+              {faqs.map((faq) => (
+                <AccordionItem key={faq.id} value={faq.id} className="border border-blue-100 rounded-lg px-3 sm:px-4 py-2 data-[state=open]:bg-blue-50/50 transition-colors">
+                  <AccordionTrigger className="hover:text-blue-600 font-semibold text-sm sm:text-base">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-xs sm:text-sm text-gray-600 pt-4">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
+        </section>
+>>>>>>> 62c3ca9c7a7ee7b247e8b1d157b14b6d6f3f7e49
 
         {/* CTA Section */}
         <section className="py-12 sm:py-16 lg:py-20">
@@ -374,7 +400,102 @@ export default async function Home() {
         </section>
       </main>
 
+<<<<<<< HEAD
     
+=======
+      {/* Footer */}
+      <footer className="border-t border-blue-100 bg-gradient-to-b from-white to-blue-50 py-8 sm:py-12 mt-12 sm:mt-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-6 sm:gap-8 sm:grid-cols-2 lg:grid-cols-4 mb-6 sm:mb-8">
+            {/* Brand */}
+            <div>
+              <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                <Image src="/vihaanlogo.png" alt="Vihaan Education Academy" width={40} height={40} className="h-10 w-10 object-contain" />
+                <div>
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base">Vihaan Education</h3>
+                  <p className="text-xs text-gray-500">Academy</p>
+                </div>
+              </div>
+              <p className="text-xs sm:text-sm text-gray-600 mb-4">Transforming lives through quality education since 2001.</p>
+              <div className="flex gap-2">
+                <a href="#" className="p-1.5 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors" aria-label="Facebook">
+                  <Facebook className="h-4 w-4" />
+                </a>
+                <a href="#" className="p-1.5 rounded-full bg-pink-100 text-pink-600 hover:bg-pink-200 transition-colors" aria-label="Instagram">
+                  <Instagram className="h-4 w-4" />
+                </a>
+                <a href="#" className="p-1.5 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors" aria-label="LinkedIn">
+                  <Linkedin className="h-4 w-4" />
+                </a>
+                <a href="#" className="p-1.5 rounded-full bg-cyan-100 text-cyan-600 hover:bg-cyan-200 transition-colors" aria-label="Twitter">
+                  <Twitter className="h-4 w-4" />
+                </a>
+              </div>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2 sm:mb-4 text-sm sm:text-base">Quick Links</h4>
+              <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-600">
+                <li><Link href="/" className="hover:text-blue-600 transition-colors">Home</Link></li>
+                <li><Link href="/about" className="hover:text-blue-600 transition-colors">About</Link></li>
+                <li><Link href="/blogs" className="hover:text-blue-600 transition-colors">Blogs</Link></li>
+                <li><Link href="/admission" className="hover:text-blue-600 transition-colors">Admission</Link></li>
+              </ul>
+            </div>
+
+            {/* Contact Information */}
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2 sm:mb-4 text-sm sm:text-base">Contact Info</h4>
+              <ul className="space-y-2 text-xs sm:text-sm text-gray-600">
+                <li className="flex gap-2">
+                  <MapPin className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+                  <span>65/66, Vijay Vihar Phase I, Sector 5, Rohini, Delhi 110085</span>
+                </li>
+                <li className="flex gap-2">
+                  <Phone className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+                  <span>092126 44428</span>
+                </li>
+                <li className="flex gap-2">
+                  <MessageCircle className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+                  <span>WhatsApp Available</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Operating Hours */}
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-2 sm:mb-4 text-sm sm:text-base">Operating Hours</h4>
+              <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-600">
+                <li className="flex gap-2">
+                  <Clock className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+                  <span>Mon - Fri: 9:00 AM - 8:00 PM</span>
+                </li>
+                <li className="flex gap-2">
+                  <Clock className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+                  <span>Sat: 10:00 AM - 6:00 PM</span>
+                </li>
+                <li className="flex gap-2">
+                  <Clock className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+                  <span>Sun: Closed</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bottom Section */}
+          <div className="border-t border-blue-100 pt-6 sm:pt-8">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-gray-500">
+              <p>&copy; 2024 Vihaan Education Academy. All rights reserved.</p>
+              <div className="flex gap-4">
+                <Link href="#" className="hover:text-blue-600 transition-colors">Privacy Policy</Link>
+                <Link href="#" className="hover:text-blue-600 transition-colors">Terms of Service</Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </footer>
+>>>>>>> 62c3ca9c7a7ee7b247e8b1d157b14b6d6f3f7e49
     </div>
   );
 }
