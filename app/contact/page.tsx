@@ -19,11 +19,7 @@ function ContactPageContent() {
         <ContactForm initialCourse={course} />
       </main>
 
-      <footer className="border-t border-blue-100 bg-white py-8">
-        <div className="mx-auto max-w-7xl px-4 text-center text-gray-500">
-          <p>&copy; 2024 Vihaan Education Academy. All rights reserved.</p>
-        </div>
-      </footer>
+     
 
     </div>
   );
