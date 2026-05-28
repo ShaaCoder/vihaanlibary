@@ -10,7 +10,6 @@ export async function getPublishedBlogs(limit = 12, offset = 0) {
       blog_categories(categories(*)),
       blog_tags(tags(*))
     `)
-    .eq('published', true)
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
@@ -28,7 +27,6 @@ export async function getFeaturedBlog() {
       blog_categories(categories(*)),
       blog_tags(tags(*))
     `)
-    .eq('published', true)
     .eq('featured', true)
     .order('created_at', { ascending: false })
     .limit(1)
@@ -78,7 +76,6 @@ export async function getRelatedBlogs(blogId: string, limit = 3) {
         blog_categories(categories(*)),
         blog_tags(tags(*))
       `)
-      .eq('published', true)
       .neq('id', blogId)
       .order('created_at', { ascending: false })
       .limit(limit);
@@ -103,7 +100,6 @@ export async function getRelatedBlogs(blogId: string, limit = 3) {
       blog_tags(tags(*))
     `)
     .in('id', ids)
-    .eq('published', true)
     .limit(limit);
 
   return (data || []).map(formatBlog);
@@ -137,7 +133,6 @@ export async function getBlogsByCategory(categorySlug: string, limit = 12, offse
       blog_tags(tags(*))
     `)
     .in('id', ids)
-    .eq('published', true)
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
@@ -172,7 +167,6 @@ export async function getBlogsByTag(tagSlug: string, limit = 12, offset = 0) {
       blog_tags(tags(*))
     `)
     .in('id', ids)
-    .eq('published', true)
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
@@ -206,7 +200,6 @@ export async function searchBlogs(query: string, limit = 12) {
       blog_categories(categories(*)),
       blog_tags(tags(*))
     `)
-    .eq('published', true)
     .or(`title.ilike.%${query}%,excerpt.ilike.%${query}%,focus_keyword.ilike.%${query}%`)
     .order('created_at', { ascending: false })
     .limit(limit);
@@ -218,8 +211,7 @@ export async function getBlogCount() {
   const supabase = createServerClient();
   const { count } = await supabase
     .from('blogs')
-    .select('*', { count: 'exact', head: true })
-    .eq('published', true);
+    .select('*', { count: 'exact', head: true });
   return count || 0;
 }
 
