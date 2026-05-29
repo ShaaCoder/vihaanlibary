@@ -10,6 +10,7 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { MobileMenu } from '@/components/mobile-menu';
+import { ContactPopover } from '@/components/contact-popover';
 
 const navItems = [
   {
@@ -115,10 +116,15 @@ export function Header() {
               <ChevronRight className="h-4 w-4" />
             </Button>
           </Link>
+
+          <div className="ml-2">
+            <ContactPopover />
+          </div>
         </nav>
 
-        {/* MOBILE MENU */}
-        <div className="lg:hidden">
+        {/* MOBILE MENU + CONTACT */}
+        <div className="flex items-center gap-2 lg:hidden">
+          <ContactPopover />
           <MobileMenu />
         </div>
       </div>

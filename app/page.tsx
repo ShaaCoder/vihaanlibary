@@ -5,9 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Link from 'next/link';
-import { BookOpen, GraduationCap, MapPin, Phone, MessageCircle, ChevronRight, Star, Users, Trophy, Clock, Menu, X, ArrowRight, Calendar, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
-import { ContactPopover } from '@/components/contact-popover';
-import { MobileMenu } from '@/components/mobile-menu';
+import { BookOpen, GraduationCap, MapPin, Phone, MessageCircle, ChevronRight, Star, Users, Trophy, Clock, ArrowRight, Calendar, Facebook, Instagram, Linkedin, Twitter } from 'lucide-react';
 import Image from 'next/image';
 
 export default async function Home() {
