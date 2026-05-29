@@ -13,8 +13,6 @@ import {
   BookOpen,
   UserPlus,
   LayoutDashboard,
-  GraduationCap,
-  ImageIcon,
   FileText,
   ChevronRight,
 } from 'lucide-react';
@@ -36,6 +34,11 @@ const navItems = [
     name: 'Blogs',
     href: '/blogs',
     icon: FileText,
+  },
+  {
+    name: 'Library',
+    href: '/library',
+    icon: BookOpen,
   },
   {
     name: 'Contact',
