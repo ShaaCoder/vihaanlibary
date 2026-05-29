@@ -348,30 +348,7 @@ export default async function Home() {
   </div>
 </section>
 
-        {/* FAQ Section */}
-        <section className="py-12 sm:py-16 lg:py-20">
-          <div className="mb-8 sm:mb-12 text-center">
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">
-              Frequently Asked <span className="text-blue-600">Questions</span>
-            </h2>
-            <p className="mt-2 sm:mt-4 text-sm sm:text-base text-gray-600">Find answers to common questions about our academy</p>
-          </div>
-          <div className="mx-auto max-w-3xl">
-            <Accordion type="single" collapsible className="space-y-2 sm:space-y-3">
-              {faqs.map((faq) => (
-                <AccordionItem key={faq.id} value={faq.id} className="border border-blue-100 rounded-lg px-3 sm:px-4 py-2 data-[state=open]:bg-blue-50/50 transition-colors">
-                  <AccordionTrigger className="hover:text-blue-600 font-semibold text-sm sm:text-base">
-                    {faq.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-xs sm:text-sm text-gray-600 pt-4">
-                    {faq.answer}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </div>
-        </section>
-
+      
 
         {/* CTA Section */}
         <section className="py-12 sm:py-16 lg:py-20">
